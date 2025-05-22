@@ -6,55 +6,44 @@ import { useTabIndex } from './context';
 import TabsHeader from './TabsHeader';
 
 function Swiper(props: SwiperProps) {
-  const {
-    theme,
-    dark,
-    style,
-    iconPosition,
-    showTextLabel,
-    showLeadingSpace,
-    uppercase,
-    mode,
-    tabHeaderStyle,
-    tabLabelStyle,
-  } = props;
+	const { theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle } = props;
 
-  const index = useTabIndex();
+	const index = useTabIndex();
 
-  let children: React.Component<TabScreenProps>[] = props.children;
+	const children: React.Component<TabScreenProps>[] = props.children;
 
-  const currentScreen = children[index];
-  if (!currentScreen) {
-    return null;
-  }
-  const renderProps = {
-    children,
-    theme,
-    dark,
-    style,
-    offset: undefined,
-    position: undefined,
-    iconPosition,
-    showTextLabel,
-    showLeadingSpace,
-    uppercase,
-    mode,
-    tabHeaderStyle,
-    tabLabelStyle,
-  };
+	const currentScreen = children[index];
+	if (!currentScreen) {
+		return null;
+	}
+	const renderProps = {
+		children,
+		theme,
+		dark,
+		style,
+		offset: undefined,
+		position: undefined,
+		iconPosition,
+		showTextLabel,
+		showLeadingSpace,
+		uppercase,
+		mode,
+		tabHeaderStyle,
+		tabLabelStyle
+	};
 
-  return (
-    <View style={styles.root}>
-      <TabsHeader {...renderProps} />
-      {currentScreen as any}
-    </View>
-  );
+	return (
+		<View style={styles.root}>
+			<TabsHeader {...renderProps} />
+			{currentScreen as any}
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
+	root: {
+		flex: 1
+	}
 });
 
 export default Swiper;
