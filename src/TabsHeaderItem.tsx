@@ -12,7 +12,7 @@ import MaterialCommunityIcon from './MaterialCommunityIcon';
 
 const AnimatedText = Animated.createAnimatedComponent<React.ComponentType<TextProps>>(Text as any);
 
-export default function TabsHeaderItem({
+const TabsHeaderItem = React.memo(function TabsHeaderItem({
 	tab,
 	tabIndex,
 	active,
@@ -158,7 +158,7 @@ export default function TabsHeaderItem({
 			</TouchableRipple>
 		</View>
 	);
-}
+});
 
 const styles = StyleSheet.create({
 	badgeContainer: {
@@ -210,3 +210,5 @@ const styles = StyleSheet.create({
 	textTop: { marginTop: 6 },
 	marginRight: { marginRight: 8 }
 });
+
+export default TabsHeaderItem;

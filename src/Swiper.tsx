@@ -5,7 +5,7 @@ import type { TabScreenProps } from './TabScreen';
 import { useTabIndex } from './context';
 import TabsHeader from './TabsHeader';
 
-function Swiper(props: SwiperProps) {
+const Swiper = React.memo(function Swiper(props: SwiperProps) {
 	const { theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle } = props;
 
 	const index = useTabIndex();
@@ -38,7 +38,7 @@ function Swiper(props: SwiperProps) {
 			{currentScreen as any}
 		</View>
 	);
-}
+});
 
 const styles = StyleSheet.create({
 	root: {

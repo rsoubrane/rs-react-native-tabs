@@ -12,6 +12,7 @@ export const TabsContext = React.createContext<{
 export function useTabNavigation() {
 	return useContext(TabsContext).goTo;
 }
+
 export function useTabIndex() {
 	return useContext(TabsContext).index;
 }

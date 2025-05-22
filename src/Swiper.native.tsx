@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
 });
 const AnimatedPagerView = Animated.createAnimatedComponent(ViewPager);
 
-function SwiperNative(props: SwiperProps) {
+const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 	const {
 		theme,
 		dark,
@@ -40,9 +40,6 @@ function SwiperNative(props: SwiperProps) {
 	React.useEffect(() => {
 		if (index !== indexRef.current) {
 			isScrolling.current = true;
-			// requestAnimationFrame(
-			//   () => viewPager.current && viewPager.current.setPage(index)
-			// );
 			viewPager.current && viewPager.current.setPage(index);
 		}
 
@@ -52,7 +49,6 @@ function SwiperNative(props: SwiperProps) {
 
 	const onPageScrollStateChanged = React.useCallback(
 		(e: any) => {
-			// Keyboard.dismiss();
 			isScrolling.current = e.nativeEvent.pageScrollState !== 'idle';
 		},
 		[isScrolling]
@@ -68,21 +64,39 @@ function SwiperNative(props: SwiperProps) {
 		[isScrolling, goTo]
 	);
 
-	const renderProps = {
-		children,
-		theme,
-		dark,
-		style,
-		position: position.current,
-		offset: offset.current,
-		iconPosition,
-		showTextLabel,
-		showLeadingSpace,
-		uppercase,
-		mode,
-		tabHeaderStyle,
-		tabLabelStyle
-	};
+	const renderProps = React.useMemo(
+		() => ({
+			children,
+			theme,
+			dark,
+			style,
+			position: position.current,
+			offset: offset.current,
+			iconPosition,
+			showTextLabel,
+			showLeadingSpace,
+			uppercase,
+			mode,
+			tabHeaderStyle,
+			tabLabelStyle
+		}),
+		[
+			children,
+			theme,
+			dark,
+			style,
+			position,
+			offset,
+			iconPosition,
+			showTextLabel,
+			showLeadingSpace,
+			uppercase,
+			mode,
+			tabHeaderStyle,
+			tabLabelStyle
+		]
+	);
+
 	return (
 		<>
 			<TabsHeader {...renderProps} />
@@ -114,6 +128,6 @@ function SwiperNative(props: SwiperProps) {
 			</AnimatedPagerView>
 		</>
 	);
-}
+});
 
 export default SwiperNative;

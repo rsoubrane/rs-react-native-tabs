@@ -1,6 +1,6 @@
 import type { Animated, LayoutRectangle, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import type { MD3LightTheme } from 'react-native-paper';
-import type { MutableRefObject, RefObject } from 'react';
+import type { MutableRefObject, RefObject, ReactNode } from 'react';
 export type AnimatedViewStyle = Animated.AnimatedProps<StyleProp<ViewStyle>>;
 export type AnimatedTextStyle = Animated.AnimatedProps<StyleProp<TextStyle>>;
 export type Mode = 'fixed' | 'scrollable';
@@ -67,7 +67,7 @@ export interface IndicatorArgs {
 export type IndicatorReturns = [RefObject<View> | undefined, () => any, AnimatedViewStyle | null];
 
 export interface TabsProviderProps {
-	children: any;
+	children: ReactNode;
 	onChangeIndex?: (index: number) => void;
 	defaultIndex?: number;
 }
