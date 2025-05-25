@@ -1,15 +1,35 @@
-import type { Animated, LayoutRectangle, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
-import type { MD3LightTheme } from 'react-native-paper';
 import type { MutableRefObject, RefObject, ReactNode } from 'react';
+import type { Animated, LayoutRectangle, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
+
+// ----------------------------------------------------------------------
+
 export type AnimatedViewStyle = Animated.AnimatedProps<StyleProp<ViewStyle>>;
 export type AnimatedTextStyle = Animated.AnimatedProps<StyleProp<TextStyle>>;
 export type Mode = 'fixed' | 'scrollable';
 export type IconPosition = 'leading' | 'top';
 
+export interface TabsTheme {
+	colors: {
+		primary: string;
+		surface: string;
+		onSurface: string;
+		onSurfaceVariant?: string;
+		background?: string;
+		error?: string;
+	};
+	fonts?: {
+		titleSmall?: TextStyle;
+	};
+	roundness?: number;
+	dark?: boolean;
+	isV3?: boolean;
+	mode?: string;
+}
+
 export interface SwiperRenderProps {
 	dark: boolean | undefined;
 	style: ViewStyle | undefined;
-	theme: typeof MD3LightTheme;
+	theme: TabsTheme;
 	children: any;
 	position: Animated.Value | undefined;
 	offset: Animated.Value | undefined;
@@ -25,7 +45,7 @@ export interface SwiperRenderProps {
 export interface SwiperProps {
 	dark: boolean | undefined;
 	style: ViewStyle | undefined;
-	theme: typeof MD3LightTheme;
+	theme: TabsTheme;
 	children: any;
 	iconPosition?: IconPosition;
 	showTextLabel?: boolean;
@@ -63,11 +83,11 @@ export interface IndicatorArgs {
 	tabsLayout: LayoutRectangle | null;
 }
 
-// prettier-ignore
 export type IndicatorReturns = [RefObject<View> | undefined, () => any, AnimatedViewStyle | null];
 
 export interface TabsProviderProps {
 	children: ReactNode;
 	onChangeIndex?: (index: number) => void;
 	defaultIndex?: number;
+	forcedIndex?: number;
 }

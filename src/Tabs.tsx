@@ -1,12 +1,11 @@
 import * as React from 'react';
 import type { ViewStyle, TextStyle } from 'react-native';
-import { withTheme } from 'react-native-paper';
 import Swiper from './Swiper';
-import type { MD3LightTheme } from 'react-native-paper';
+import type { IconPosition, Mode, TabsTheme } from './utils';
 
-import type { IconPosition, Mode } from './utils';
+// ----------------------------------------------------------------------
 
-function Tabs({
+const Tabs = React.memo(function Tabs({
 	theme,
 	dark,
 	style,
@@ -18,10 +17,10 @@ function Tabs({
 	disableSwipe = false,
 	tabHeaderStyle,
 	tabLabelStyle,
-	...rest
+	children: childrenProp
 }: {
 	children: any;
-	theme: typeof MD3LightTheme;
+	theme: TabsTheme;
 	dark?: boolean;
 	style?: ViewStyle;
 	iconPosition?: IconPosition;
@@ -33,24 +32,26 @@ function Tabs({
 	tabHeaderStyle?: ViewStyle | undefined;
 	tabLabelStyle?: TextStyle | undefined;
 }) {
-	const children = React.Children.toArray(rest.children).filter(Boolean);
+	const children = React.useMemo(() => React.Children.toArray(childrenProp).filter(Boolean), [childrenProp]);
 
-	return (
-		<Swiper
-			style={style}
-			dark={dark}
-			theme={theme}
-			uppercase={uppercase}
-			iconPosition={iconPosition}
-			showTextLabel={showTextLabel}
-			showLeadingSpace={showLeadingSpace}
-			mode={mode}
-			disableSwipe={disableSwipe}
-			tabHeaderStyle={tabHeaderStyle}
-			tabLabelStyle={tabLabelStyle}>
-			{children}
-		</Swiper>
+	const swiperProps = React.useMemo(
+		() => ({
+			style,
+			dark,
+			theme,
+			uppercase,
+			iconPosition,
+			showTextLabel,
+			showLeadingSpace,
+			mode,
+			disableSwipe,
+			tabHeaderStyle,
+			tabLabelStyle
+		}),
+		[style, dark, theme, uppercase, iconPosition, showTextLabel, showLeadingSpace, mode, disableSwipe, tabHeaderStyle, tabLabelStyle]
 	);
-}
 
-export default withTheme(Tabs);
+	return <Swiper {...swiperProps}>{children}</Swiper>;
+});
+
+export default Tabs;

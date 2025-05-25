@@ -1,9 +1,12 @@
 import * as React from 'react';
 import type { GestureResponderEvent } from 'react-native';
+import type { LucideIcon } from 'lucide-react-native';
+
+// ----------------------------------------------------------------------
 
 export interface TabScreenProps {
 	label: string;
-	icon?: any;
+	icon?: LucideIcon;
 	badge?: string | number | boolean;
 	children: any;
 	onPress?: (event: GestureResponderEvent) => void;

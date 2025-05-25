@@ -1,14 +1,14 @@
-import type { SwiperRenderProps } from './utils';
-import { Animated, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import type { LayoutChangeEvent, LayoutRectangle, ViewStyle } from 'react-native';
-import { overlay, Surface } from 'react-native-paper';
-import color from 'color';
 import * as React from 'react';
-import { useIndicator, useOffsetScroller } from './internal';
-import TabsHeaderItem from './TabsHeaderItem';
-import { TabsContext } from './context';
 import type { ReactElement } from 'react';
+import type { LayoutChangeEvent, LayoutRectangle, ViewStyle } from 'react-native';
+import { Animated, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import type { TabScreenProps } from './TabScreen';
+import TabsHeaderItem from './TabsHeaderItem';
+import type { SwiperRenderProps } from './utils';
+import { TabsContext } from './context';
+import { useIndicator, useOffsetScroller } from './internal';
+
+// ----------------------------------------------------------------------
 
 export default function TabsHeader({
 	position,
@@ -26,38 +26,16 @@ export default function TabsHeader({
 	children
 }: SwiperRenderProps) {
 	const { index, goTo } = React.useContext(TabsContext);
-	const { colors, dark: isDarkTheme, mode: themeMode, isV3 } = theme;
+
 	const { backgroundColor: customBackground, elevation: _elevation, ...restStyle }: ViewStyle = StyleSheet.flatten(style) || {};
 
-	const elevation = theme.isV3 ? _elevation : _elevation || 4;
-	let isDark: boolean;
+	const elevation = _elevation || 0;
+	const isDark = typeof dark === 'boolean' ? dark : false;
 
-	const backgroundColorV2 = isDarkTheme && themeMode === 'adaptive' ? overlay(elevation || 0, colors.surface) : colors.primary;
+	const backgroundColor = customBackground || (isDark ? '#1f2937' : '#f8fafc');
 
-	const backgroundColorV3 = theme.colors.surface;
-	const backgroundColor = customBackground ? customBackground : isV3 ? backgroundColorV3 : backgroundColorV2;
-
-	const hasPrimaryBackground = colors.primary === backgroundColor;
-	if (typeof dark === 'boolean') {
-		isDark = dark;
-	} else {
-		isDark =
-			backgroundColor === 'transparent'
-				? false
-				: // @ts-ignore
-					!color(backgroundColor).isLight();
-	}
-
-	const textColorV2 = isDark ? '#fff' : '#000';
-	const activeColorV2 = hasPrimaryBackground ? textColorV2 : theme.colors.primary;
-
-	// Color (active)	On surface	md.sys.color.on-surface
-	// Color (inactive)	On surface variant	md.sys.color.on-surface-variant
-	const textColorV3 = colors.onSurfaceVariant;
-	const activeColorV3 = colors.onSurface;
-
-	const textColor = isV3 ? textColorV3 : textColorV2;
-	const activeColor = isV3 ? activeColorV3 : activeColorV2;
+	const textColor = isDark ? '#a1a1aa' : '#64748b';
+	const activeColor = isDark ? '#e2e8f0' : '#334155';
 
 	const innerScrollSize = React.useRef<number | null>(null);
 	const scrollX = React.useRef<number>(0);
@@ -94,13 +72,11 @@ export default function TabsHeader({
 	const updateScroll = React.useCallback(
 		(scrollType?: 'next' | 'prev') => {
 			if (!layouts.current) {
-				console.log('returning no layout');
 				return;
 			}
 			let cl = layouts.current[index];
 
 			if (!cl || !scrollRef.current || !tabsLayout) {
-				console.log('!cl || !scrollRef.current || !tabsLayout');
 				return;
 			}
 
@@ -139,19 +115,15 @@ export default function TabsHeader({
 		[layouts, index, scrollRef, scrollX, tabsLayout]
 	);
 
-	// subscribes to offset on native devices to scroll tab bar faster when scrolling (iOS only since Android bugs)
 	useOffsetScroller({ updateScroll, index, offset, mode });
 
-	// updates scroll when index changes (updateScroll function changes to new reference when index changes)
 	React.useEffect(() => {
 		updateScroll();
 	}, [updateScroll]);
 
-	const SurfaceComponent = theme.isV3 ? View : Surface;
-
 	return (
 		<Animated.View style={[styles.relative, tabHeaderStyle]}>
-			<SurfaceComponent
+			<View
 				style={[{ backgroundColor, elevation }, restStyle, styles.tabs, iconPosition === 'top' && styles.tabsTopIcon]}
 				onLayout={onTabsLayout}>
 				<ScrollView
@@ -202,7 +174,7 @@ export default function TabsHeader({
 						]}
 					/>
 				</ScrollView>
-				{elevation && (
+				{elevation > 0 && (
 					<Animated.View
 						style={[
 							styles.removeTopShadow,
@@ -214,7 +186,7 @@ export default function TabsHeader({
 						]}
 					/>
 				)}
-			</SurfaceComponent>
+			</View>
 		</Animated.View>
 	);
 }

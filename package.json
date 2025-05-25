@@ -18,12 +18,19 @@
 			}
 		}
 	},
-	"files": ["src", "lib"],
+	"files": [
+		"src",
+		"lib"
+	],
 	"scripts": {
 		"build": "tsc",
 		"prepare": "npm run build"
 	},
-	"keywords": ["react-native", "ios", "android"],
+	"keywords": [
+		"react-native",
+		"ios",
+		"android"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/rsoubrane/rs-react-native-tabs.git"
@@ -38,7 +45,8 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"dependencies": {
-		"color": "^5.0.0"
+		"color": "^5.0.0",
+		"lucide-react-native": "^0.511.0"
 	},
 	"devDependencies": {
 		"@expo/vector-icons": "^14.1.0",

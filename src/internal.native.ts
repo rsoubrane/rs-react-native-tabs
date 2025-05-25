@@ -1,6 +1,8 @@
 import * as React from 'react';
-import type { AnimatedColorArgs, AnimatedTextStyle, AnimatedViewStyle, IndicatorArgs, IndicatorReturns, OffsetScrollArgs } from './utils';
 import { Animated, Platform } from 'react-native';
+import type { AnimatedColorArgs, AnimatedTextStyle, AnimatedViewStyle, IndicatorArgs, IndicatorReturns, OffsetScrollArgs } from './utils';
+
+// ----------------------------------------------------------------------
 
 export function useAnimatedText({
 	childrenCount,
@@ -10,25 +12,26 @@ export function useAnimatedText({
 	textColor,
 	activeColor
 }: AnimatedColorArgs): AnimatedTextStyle {
+	if (childrenCount <= 1) {
+		return {
+			color: activeColor,
+			opacity: 1
+		};
+	}
+
 	const childrenA = new Array(childrenCount).fill(undefined);
 	const positionWithOffset = Animated.add(position!, offset!);
 	const inputRange = childrenA.map((_, i) => i);
 
 	return {
-		color:
-			childrenA.length <= 1
-				? activeColor
-				: positionWithOffset!.interpolate({
-						inputRange: inputRange,
-						outputRange: childrenA.map((_, i) => (i === tabIndex ? activeColor : textColor))
-					}),
-		opacity:
-			childrenA.length <= 1
-				? 1
-				: positionWithOffset.interpolate({
-						inputRange: inputRange,
-						outputRange: childrenA.map((_, i) => (i === tabIndex ? 1 : 0.6))
-					})
+		color: positionWithOffset!.interpolate({
+			inputRange: inputRange,
+			outputRange: childrenA.map((_, i) => (i === tabIndex ? activeColor : textColor))
+		}),
+		opacity: positionWithOffset.interpolate({
+			inputRange: inputRange,
+			outputRange: childrenA.map((_, i) => (i === tabIndex ? 1 : 0.6))
+		})
 	};
 }
 
@@ -36,9 +39,6 @@ export function useIndicator({ childrenCount, position, offset, layouts, tabsLay
 	const [renderIndex, setRenderIndex] = React.useState(0);
 
 	const style = React.useMemo<AnimatedViewStyle | null>(() => {
-		/* eslint-disable @typescript-eslint/no-unused-vars  */
-		// @ts-ignore
-		const _ = renderIndex;
 		const childrenA = new Array(childrenCount).fill(undefined);
 		const inputRange = childrenA.map((__, i) => i);
 		const positionWithOffset = Animated.add(position!, offset!);
@@ -90,10 +90,9 @@ export function useIndicator({ childrenCount, position, offset, layouts, tabsLay
 }
 
 export function useOffsetScroller({ index, offset, updateScroll, mode }: OffsetScrollArgs) {
-	// we want native to scroll before the index changes
 	const direction = React.useRef<undefined | 'next' | 'prev'>(undefined);
+
 	React.useEffect(() => {
-		// android does not work unfortunately
 		if (offset !== undefined && offset !== null && Platform.OS !== 'android' && mode === 'scrollable') {
 			const id = offset.addListener((nOffset) => {
 				const newOffset = nOffset.value;

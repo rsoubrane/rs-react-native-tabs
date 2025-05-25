@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
-import { TabsContext } from './context';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { TabsProviderProps } from './utils';
+import { TabsContext } from './context';
 
-export function TabsProvider({ children, onChangeIndex, defaultIndex }: TabsProviderProps) {
+// ----------------------------------------------------------------------
+
+export const TabsProvider = React.memo(function TabsProvider({ children, onChangeIndex, defaultIndex, forcedIndex }: TabsProviderProps) {
 	const [index, setIndex] = useState<number>(defaultIndex || 0);
-	const goTo = React.useCallback(
+
+	useEffect(() => {
+		if (forcedIndex !== undefined && forcedIndex !== index) {
+			setIndex(forcedIndex);
+		}
+	}, [forcedIndex, index]);
+
+	const goTo = useCallback(
 		(ind: number) => {
-			setIndex(ind);
-			onChangeIndex?.(ind);
+			if (ind !== index) {
+				requestAnimationFrame(() => {
+					setIndex(ind);
+					onChangeIndex?.(ind);
+				});
+			}
 		},
-		[setIndex, onChangeIndex]
+		[index, onChangeIndex]
 	);
 
-	const value = React.useMemo(() => ({ goTo, index }), [goTo, index]);
+	const value = useMemo(() => ({ goTo, index }), [goTo, index]);
 
 	return <TabsContext.Provider value={value}>{children}</TabsContext.Provider>;
-}
+});

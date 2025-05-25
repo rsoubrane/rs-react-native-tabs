@@ -1,164 +1,308 @@
 import * as React from 'react';
-import { Animated, StyleSheet, View, Platform, Text } from 'react-native';
-import type { LayoutChangeEvent, TextProps, TextStyle } from 'react-native';
-import { Badge, TouchableRipple } from 'react-native-paper';
-import type { MD3LightTheme } from 'react-native-paper';
 import type { ReactElement } from 'react';
+import type { LayoutChangeEvent, TextProps, TextStyle } from 'react-native';
+import { Animated, StyleSheet, View, Platform, Text, Pressable, Dimensions } from 'react-native';
 import type { TabScreenProps } from './TabScreen';
-import Color from 'color';
+import type { IconPosition, Mode, TabsTheme } from './utils';
 import { useAnimatedText } from './internal';
-import type { IconPosition, Mode } from './utils';
-import MaterialCommunityIcon from './MaterialCommunityIcon';
+
+// ----------------------------------------------------------------------
 
 const AnimatedText = Animated.createAnimatedComponent<React.ComponentType<TextProps>>(Text as any);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const TabsHeaderItem = React.memo(function TabsHeaderItem({
-	tab,
-	tabIndex,
-	active,
-	goTo,
-	onTabLayout,
-	activeColor,
-	textColor,
-	theme,
-	position,
-	offset,
-	childrenCount,
-	uppercase,
-	mode,
-	iconPosition,
-	showTextLabel,
-	tabLabelStyle
-}: {
-	tab: ReactElement<TabScreenProps>;
-	tabIndex: number;
-	active: boolean;
-	goTo: (index: number) => void;
-	onTabLayout: (index: number, e: LayoutChangeEvent) => void;
-	activeColor: string;
-	textColor: string;
-	theme: typeof MD3LightTheme;
-	position: Animated.Value | undefined;
-	offset: Animated.Value | undefined;
-	childrenCount: number;
-	uppercase?: boolean;
-	iconPosition?: IconPosition;
-	showTextLabel?: boolean;
-	mode: Mode;
-	tabLabelStyle?: TextStyle | undefined;
-}) {
-	const baseColor = theme.colors.primary;
-	const rippleColor = React.useMemo(
-		() =>
-			Color(baseColor as any)
-				.alpha(0.32)
-				.rgb()
-				.string(),
-		[baseColor]
-	);
+const Badge = React.memo(
+	({ visible, size = 16, theme, children }: { visible: boolean; size: number; theme: TabsTheme; children?: React.ReactNode }) => {
+		if (!visible) return null;
 
-	const { color, opacity } = useAnimatedText({
+		return (
+			<View
+				style={[
+					styles.badge,
+					{
+						backgroundColor: theme.colors.primary,
+						borderRadius: size / 2,
+						width: children ? size + 10 : size,
+						height: size
+					}
+				]}>
+				{children ? <Text style={[styles.badgeText, { fontSize: size / 2 }]}>{children}</Text> : null}
+			</View>
+		);
+	}
+);
+
+const TabsHeaderItem = React.memo(
+	function TabsHeaderItem({
+		tab,
+		tabIndex,
 		active,
-		position,
-		offset,
+		goTo,
+		onTabLayout,
 		activeColor,
 		textColor,
-		tabIndex,
-		childrenCount
-	});
+		theme,
+		position,
+		offset,
+		childrenCount,
+		uppercase,
+		mode,
+		iconPosition,
+		showTextLabel,
+		tabLabelStyle
+	}: {
+		tab: ReactElement<TabScreenProps>;
+		tabIndex: number;
+		active: boolean;
+		goTo: (index: number) => void;
+		onTabLayout: (index: number, e: LayoutChangeEvent) => void;
+		activeColor: string;
+		textColor: string;
+		theme: TabsTheme;
+		position: Animated.Value | undefined;
+		offset: Animated.Value | undefined;
+		childrenCount: number;
+		uppercase?: boolean;
+		iconPosition?: IconPosition;
+		showTextLabel?: boolean;
+		mode: Mode;
+		tabLabelStyle?: TextStyle | undefined;
+	}) {
+		const scaleAnim = React.useRef(new Animated.Value(1)).current;
+		const pressOpacity = React.useRef(new Animated.Value(1)).current;
 
-	const badgeIsFilled = tab.props.badge !== undefined && tab.props.badge !== null;
+		const { color, opacity } = useAnimatedText({
+			active,
+			position,
+			offset,
+			activeColor,
+			textColor,
+			tabIndex,
+			childrenCount
+		});
 
-	const badgeWithoutContent = typeof tab.props.badge === 'boolean';
+		const badgeConfig = React.useMemo(() => {
+			const isFilled = tab.props.badge !== undefined && tab.props.badge !== null;
+			const withoutContent = typeof tab.props.badge === 'boolean';
+			return { isFilled, withoutContent };
+		}, [tab.props.badge]);
 
-	return (
-		<View
-			key={tab.props.label}
-			style={[styles.tabRoot, mode === 'fixed' && styles.tabRootFixed]}
-			onLayout={(e) => onTabLayout(tabIndex, e)}>
-			<TouchableRipple
-				disabled={tab.props.disabled}
-				onPress={(e) => {
-					goTo(tabIndex);
-					tab.props.onPress?.(e);
-				}}
-				onPressIn={tab.props.onPressIn}
-				style={[
-					styles.touchableRipple,
-					iconPosition === 'top' && styles.touchableRippleTop,
-					tab.props.disabled && styles.touchableRippleDisabled,
-					{ borderRadius: theme.roundness }
-				]}
-				rippleColor={rippleColor}
-				// @ts-ignore
-				accessibilityTraits={'button'}
-				accessibilityRole="button"
-				accessibilityComponentType="button"
-				accessibilityLabel={tab.props.label}
-				accessibilityState={{ selected: active }}
-				testID={`tab_${tabIndex}`}>
-				<View style={[styles.touchableRippleInner, iconPosition === 'top' && styles.touchableRippleInnerTop]}>
-					{tab.props.icon ? (
-						<View style={[styles.iconContainer, iconPosition !== 'top' && styles.marginRight]}>
-							{tab.props.icon ? (
-								Platform.OS === 'android' ? (
-									<Animated.View style={{ opacity }}>
-										<MaterialCommunityIcon
-											selectable={false}
-											accessibilityElementsHidden={true}
-											importantForAccessibility="no"
-											name={tab.props.icon}
-											color={textColor}
-											size={24}
-										/>
-									</Animated.View>
-								) : (
-									<MaterialCommunityIcon
-										selectable={false}
-										accessibilityElementsHidden={true}
-										importantForAccessibility="no"
-										name={tab.props.icon}
-										style={{ color, opacity }}
-										size={24}
-									/>
-								)
-							) : null}
-						</View>
-					) : null}
-					{badgeIsFilled ? (
-						<View
-							style={[
-								styles.badgeContainer,
-								{
-									right: (badgeWithoutContent ? String(tab.props.badge).length * -2 : 0) - 2
-								}
-							]}>
-							{badgeWithoutContent ? (
-								<Badge visible={true} size={8} theme={theme} />
-							) : (
-								<Badge visible={true} size={16} theme={theme}>
-									{tab.props.badge as any}
+		const handlePressIn = React.useCallback(
+			(e: any) => {
+				Animated.parallel([
+					Animated.spring(scaleAnim, {
+						toValue: 0.95,
+						useNativeDriver: true,
+						tension: 300,
+						friction: 8
+					}),
+					Animated.timing(pressOpacity, {
+						toValue: 0.7,
+						duration: 100,
+						useNativeDriver: true
+					})
+				]).start();
+
+				tab.props.onPressIn?.(e);
+			},
+			[scaleAnim, pressOpacity, tab.props]
+		);
+
+		const handlePressOut = React.useCallback(() => {
+			Animated.parallel([
+				Animated.spring(scaleAnim, {
+					toValue: 1,
+					useNativeDriver: true,
+					tension: 300,
+					friction: 8
+				}),
+				Animated.timing(pressOpacity, {
+					toValue: 1,
+					duration: 100,
+					useNativeDriver: true
+				})
+			]).start();
+		}, [scaleAnim, pressOpacity]);
+
+		const handlePress = React.useCallback(
+			(e: any) => {
+				if (Platform.OS === 'ios') {
+					const { HapticFeedback } = require('react-native');
+					HapticFeedback?.impact?.(HapticFeedback.ImpactFeedbackStyle.Light);
+				}
+
+				goTo(tabIndex);
+				tab.props.onPress?.(e);
+			},
+			[goTo, tabIndex, tab.props]
+		);
+
+		const handleLayout = React.useCallback(
+			(e: LayoutChangeEvent) => {
+				onTabLayout(tabIndex, e);
+			},
+			[onTabLayout, tabIndex]
+		);
+
+		const textContent = React.useMemo(
+			() => (uppercase ? tab.props.label.toUpperCase() : tab.props.label),
+			[uppercase, tab.props.label]
+		);
+
+		const dynamicFontSize = React.useMemo(() => {
+			const screenWidth = Dimensions.get('window').width;
+			const tabWidth = mode === 'fixed' ? screenWidth / childrenCount : Math.min(screenWidth / 3, 120);
+			const iconSpace = tab.props.icon ? 32 : 0;
+			const paddingSpace = 32;
+			const badgeSpace = badgeConfig.isFilled ? 16 : 0;
+			const availableTextWidth = tabWidth - iconSpace - paddingSpace - badgeSpace;
+
+			let fontSize = 12;
+
+			if (availableTextWidth > 80 && textContent.length <= 6) {
+				fontSize = 14;
+			} else if (availableTextWidth > 100 && textContent.length <= 4) {
+				fontSize = 16;
+			}
+
+			const textLength = textContent.length;
+			if (textLength > 12) {
+				fontSize = Math.max(8, fontSize - 4);
+			} else if (textLength > 8) {
+				fontSize = Math.max(10, fontSize - 2);
+			}
+
+			if (availableTextWidth < 40) {
+				fontSize = Math.max(8, fontSize - 2);
+			} else if (availableTextWidth < 60) {
+				fontSize = Math.max(9, fontSize - 1);
+			}
+
+			return fontSize;
+		}, [textContent.length, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
+
+		const maxCharacters = React.useMemo(() => {
+			const screenWidth = Dimensions.get('window').width;
+			const tabWidth = mode === 'fixed' ? screenWidth / childrenCount : Math.min(screenWidth / 3, 120);
+			const iconSpace = tab.props.icon ? 32 : 0;
+			const paddingSpace = 32;
+			const badgeSpace = badgeConfig.isFilled ? 16 : 0;
+			const availableTextWidth = tabWidth - iconSpace - paddingSpace - badgeSpace;
+
+			const characterWidth = dynamicFontSize * (Platform.OS === 'ios' ? 0.55 : 0.6);
+			const maxChars = Math.floor(availableTextWidth / characterWidth);
+
+			return Math.max(3, maxChars);
+		}, [dynamicFontSize, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
+
+		const displayText = React.useMemo(() => {
+			if (textContent.length <= maxCharacters) {
+				return textContent;
+			}
+
+			if (maxCharacters <= 4) {
+				return `${textContent.substring(0, 1)}...`;
+			}
+
+			return `${textContent.substring(0, maxCharacters - 3)}...`;
+		}, [textContent, maxCharacters]);
+
+		const containerStyle = React.useMemo(() => [styles.tabRoot, mode === 'fixed' && styles.tabRootFixed], [mode]);
+
+		const pressableStyle = React.useMemo(
+			() => [
+				styles.touchableRipple,
+				iconPosition === 'top' && styles.touchableRippleTop,
+				tab.props.disabled && styles.touchableRippleDisabled
+			],
+			[iconPosition, tab.props.disabled]
+		);
+
+		const innerStyle = React.useMemo(
+			() => [styles.touchableRippleInner, iconPosition === 'top' && styles.touchableRippleInnerTop],
+			[iconPosition]
+		);
+
+		return (
+			<View key={tab.props.label} style={containerStyle} onLayout={handleLayout}>
+				<AnimatedPressable
+					disabled={tab.props.disabled}
+					onPress={handlePress}
+					onPressIn={handlePressIn}
+					onPressOut={handlePressOut}
+					style={[
+						pressableStyle,
+						{
+							transform: [{ scale: scaleAnim }],
+							opacity: pressOpacity
+						}
+					]}
+					accessibilityRole="button"
+					accessibilityLabel={tab.props.label}
+					accessibilityState={{ selected: active }}
+					testID={`tab_${tabIndex}`}>
+					<View style={innerStyle}>
+						{tab.props.icon && (
+							<Animated.View style={[styles.iconContainer, iconPosition !== 'top' && styles.marginRight, { opacity }]}>
+								{React.createElement(tab.props.icon, {
+									size: 24,
+									color: Platform.OS === 'android' ? textColor : textColor,
+									accessibilityLabel: tab.props.label
+								})}
+							</Animated.View>
+						)}
+
+						{badgeConfig.isFilled && (
+							<View
+								style={[
+									styles.badgeContainer,
+									{
+										right: (badgeConfig.withoutContent ? String(tab.props.badge).length * -2 : 0) - 2
+									}
+								]}>
+								<Badge visible={true} size={badgeConfig.withoutContent ? 8 : 16} theme={theme}>
+									{!badgeConfig.withoutContent ? tab.props.badge : undefined}
 								</Badge>
-							)}
-						</View>
-					) : null}
-					{showTextLabel ? (
-						<AnimatedText
-							selectable={false}
-							style={[
-								styles.text,
-								iconPosition === 'top' && styles.textTop,
-								{ ...theme.fonts.titleSmall, color, opacity },
-								tabLabelStyle
-							]}>
-							{uppercase && !theme.isV3 ? tab.props.label.toUpperCase() : tab.props.label}
-						</AnimatedText>
-					) : null}
-				</View>
-			</TouchableRipple>
-		</View>
-	);
-});
+							</View>
+						)}
+
+						{showTextLabel && (
+							<View style={styles.textContainer}>
+								<AnimatedText
+									selectable={false}
+									numberOfLines={1}
+									ellipsizeMode="tail"
+									style={[
+										styles.text,
+										iconPosition === 'top' && styles.textTop,
+										{ color, opacity, fontSize: dynamicFontSize },
+										tabLabelStyle
+									]}>
+									{displayText}
+								</AnimatedText>
+							</View>
+						)}
+					</View>
+				</AnimatedPressable>
+			</View>
+		);
+	},
+	(prevProps, nextProps) => {
+		return (
+			prevProps.active === nextProps.active &&
+			prevProps.tabIndex === nextProps.tabIndex &&
+			prevProps.tab.props.label === nextProps.tab.props.label &&
+			prevProps.tab.props.badge === nextProps.tab.props.badge &&
+			prevProps.tab.props.disabled === nextProps.tab.props.disabled &&
+			prevProps.activeColor === nextProps.activeColor &&
+			prevProps.textColor === nextProps.textColor &&
+			prevProps.uppercase === nextProps.uppercase &&
+			prevProps.iconPosition === nextProps.iconPosition &&
+			prevProps.showTextLabel === nextProps.showTextLabel &&
+			prevProps.mode === nextProps.mode
+		);
+	}
+);
 
 const styles = StyleSheet.create({
 	badgeContainer: {
@@ -166,49 +310,86 @@ const styles = StyleSheet.create({
 		left: 0,
 		top: -2
 	},
-	tabRoot: { position: 'relative' },
-	tabRootFixed: { flex: 1 },
+	badge: {
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	badgeText: {
+		color: '#fff',
+		fontWeight: 'bold',
+		textAlign: 'center'
+	},
+	tabRoot: {
+		position: 'relative'
+	},
+	tabRootFixed: {
+		flex: 1
+	},
 	touchableRipple: {
 		height: 48,
 		justifyContent: 'center',
 		alignItems: 'center',
-		overflow: 'hidden'
+		overflow: 'hidden',
+		borderRadius: 8
 	},
 	touchableRippleTop: {
 		height: 72
 	},
 	touchableRippleInner: {
+		height: '100%',
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		paddingRight: 16,
-		paddingLeft: 16,
+		paddingHorizontal: 16,
 		minWidth: 90,
 		maxWidth: 360
 	},
 	touchableRippleInnerTop: {
-		flexDirection: 'column'
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center'
 	},
 	touchableRippleDisabled: {
 		opacity: 0.4
 	},
 	iconContainer: {
 		width: 24,
-		height: 24
+		height: 24,
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	text: {
 		textAlign: 'center',
-		letterSpacing: 1,
+		letterSpacing: 0.5,
+		includeFontPadding: false,
+		textAlignVertical: 'center',
+		fontWeight: '500',
 		...Platform.select({
 			web: {
 				transitionDuration: '150ms',
-				transitionProperty: 'all'
+				transitionProperty: 'all',
+				whiteSpace: 'nowrap',
+				overflow: 'hidden',
+				textOverflow: 'ellipsis'
+			},
+			android: {
+				includeFontPadding: false,
+				textAlignVertical: 'center'
 			},
 			default: {}
 		})
 	},
-	textTop: { marginTop: 6 },
-	marginRight: { marginRight: 8 }
+	textTop: {
+		marginTop: 6
+	},
+	textContainer: {
+		justifyContent: 'center',
+		alignItems: 'center',
+		flex: 1
+	},
+	marginRight: {
+		marginRight: 8
+	}
 });
 
 export default TabsHeaderItem;

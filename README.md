@@ -1,142 +1,93 @@
-<img align="left" width="56" height="56" src="https://user-images.githubusercontent.com/6492229/103138418-c9580f00-46d2-11eb-855a-f8b3c9e90ac7.png"> react-native-paper-tabs
----
-<br>
-<p float="left">
-<img src="https://badgen.net/bundlephobia/minzip/react-native-paper-tabs" />
-<img src="https://badgen.net/npm/dy/react-native-paper-tabs" />
-<img src="https://badgen.net/npm/types/react-native-paper-tabs" />
-<img src="https://badgen.net/npm/license/react-native-paper-tabs" />
-<img src="https://img.shields.io/badge/Runs%20with%20Expo-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000" />
-</p>
+# Tabs Component
 
-- Smooth and fast cross platform Material Design Tabs for ([react-native-paper](https://callstack.github.io/react-native-paper/))
-- Tested on Android, iOS and the web
-- Simple API
-- Typesafe
-- Scrollable and fixed
-- Leading or top icon
-- Performant
-- Badges
-- Support for Material You
-- Uses native components ([react-native-viewpager](https://github.com/callstack/react-native-viewpager))
-- Great React Native Web support
-- Implements official spec ([material-design-spec](https://material.io/components/tabs#usage))
+A customizable tabs component for React Native that supports tailwind/nativewind colors and Lucide icons.
 
-[![Demo of react-native-paper-tabs](https://user-images.githubusercontent.com/6492229/103141217-cb7d9600-46f1-11eb-8a98-9f233f0b7198.png)](https://www.youtube.com/watch?v=DFZQlT11k58)
+## Features
 
-[View video on YouTube](https://www.youtube.com/watch?v=DFZQlT11k58)
-
-Web demo: [reactnativepapertabs.com](http://reactnativepapertabs.com/)
-
-
-## About us
-We want developers to be able to build software faster using modern tools like GraphQL, Golang and React Native.
-
-Give us a follow on Twitter:
-[RichardLindhout](https://twitter.com/RichardLindhout),
-[web_ridge](https://twitter.com/web_ridge)
-
-
-## Getting started
-
-Yarn
-```sh
-yarn add react-native-paper-tabs react-native-pager-view
-```
-
-npm
-```sh
-npm install react-native-paper-tabs react-native-pager-view
-```
+- Support for tailwind colors
+- Uses Lucide icons
+- Dark mode support
+- Customizable tab headers
+- Badge support
+- Responsive design
 
 ## Usage
 
-```tsx
-import {
-  Button,
-  Title,
-  Paragraph,
-} from 'react-native-paper';
-import {
-  TabsProvider,
-  Tabs,
-  TabScreen,
-  useTabIndex,
-  useTabNavigation,
-} from 'react-native-paper-tabs';
+```jsx
+import { Tabs, TabScreen, TabsProvider } from '@/components/_tabs';
+import { Home, User, Bell, Settings } from 'lucide-react-native';
 
-function Example() {
-    return (
-      <TabsProvider
-        defaultIndex={0}
-        // onChangeIndex={handleChangeIndex} optional
-      >
-        <Tabs
-          // uppercase={false} // true/false | default=true (on material v2) | labels are uppercase
-          // showTextLabel={false} // true/false | default=false (KEEP PROVIDING LABEL WE USE IT AS KEY INTERNALLY + SCREEN READERS)
-          // iconPosition // leading, top | default=leading
-          // style={{ backgroundColor:'#fff' }} // works the same as AppBar in react-native-paper
-          // dark={false} // works the same as AppBar in react-native-paper
-          // theme={} // works the same as AppBar in react-native-paper
-          // mode="scrollable" // fixed, scrollable | default=fixed
-          // showLeadingSpace={true} //  (default=true) show leading space in scrollable tabs inside the header
-          // disableSwipe={false} // (default=false) disable swipe to left/right gestures
-          // tabHeaderStyle // style object, can be animated properties as well in
-          // tabLabelStyle // style object
-        >
-          <TabScreen label="Explore" icon="compass">
-             <ExploreWitHookExamples />
-          </TabScreen>
-          <TabScreen label="Flights" icon="airplane" disabled>
-            <View style={{ backgroundColor: 'black', flex:1 }} />
-          </TabScreen>
-          <TabScreen
-            label="Trips"
-            icon="bag-suitcase"
-            // optional props
-            // badge={true} // only show indicator
-            // badge="text"
-            // badge={1}
-            // onPressIn={() => {
-            //   console.log('onPressIn explore');
-            // }}
-            // onPress={() => {
-            //   console.log('onPress explore');
-            // }}
-          >
-             <View style={{ backgroundColor: 'red', flex:1 }} />
-          </TabScreen>
-        </Tabs>
-      </TabsProvider>
-    )
-}
+export default function MyScreen() {
+  const isDark = false; // Use your own theme system
 
-function ExploreWitHookExamples() {
-  const goTo = useTabNavigation();
-  const index = useTabIndex();
   return (
-    <View style={{ flex:1 }}>
-      <Title>Explore</Title>
-      <Paragraph>Index: {index}</Paragraph>
-      <Button onPress={() => goTo(1)}>Go to Flights</Button>
-    </View>
+    <TabsProvider defaultIndex={0}>
+      <Tabs
+        dark={isDark}
+        style={{
+          backgroundColor: isDark ? '#1f2937' : '#f8fafc'
+        }}
+        theme={{
+          colors: {
+            primary: isDark ? '#3b82f6' : '#2563eb',
+            surface: isDark ? '#111827' : '#ffffff',
+            onSurface: isDark ? '#f3f4f6' : '#1f2937',
+          }
+        }}
+        tabLabelStyle={{
+          color: isDark ? '#e2e8f0' : '#374151',
+          fontSize: 14,
+          fontWeight: '500',
+        }}
+      >
+        <TabScreen label="Home" icon={Home}>
+          <HomeScreen />
+        </TabScreen>
+        <TabScreen label="Profile" icon={User}>
+          <ProfileScreen />
+        </TabScreen>
+        <TabScreen label="Notifications" icon={Bell} badge={5}>
+          <NotificationsScreen />
+        </TabScreen>
+        <TabScreen label="Settings" icon={Settings}>
+          <SettingsScreen />
+        </TabScreen>
+      </Tabs>
+    </TabsProvider>
   );
 }
-
 ```
 
-## Contributing
+## Props
 
-See the [contributing guide](../../CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+### Tabs
 
-## License
+| Prop             | Type                    | Description                           |
+| ---------------- | ----------------------- | ------------------------------------- |
+| `theme`          | Object                  | Theme object with colors.primary etc. |
+| `dark`           | boolean                 | Whether to use dark mode              |
+| `style`          | ViewStyle               | Style for the tabs container          |
+| `mode`           | 'fixed' \| 'scrollable' | Tab header layout mode                |
+| `iconPosition`   | 'leading' \| 'top'      | Position of the icon                  |
+| `showTextLabel`  | boolean                 | Whether to show text labels           |
+| `uppercase`      | boolean                 | Whether to uppercase labels           |
+| `tabHeaderStyle` | ViewStyle               | Style for the tab header              |
+| `tabLabelStyle`  | TextStyle               | Style for the tab labels              |
 
-MIT
+### TabScreen
 
+| Prop       | Type                        | Description                                                   |
+| ---------- | --------------------------- | ------------------------------------------------------------- |
+| `label`    | string                      | Tab label text                                                |
+| `icon`     | Component                   | Lucide icon component (e.g., `Home` from lucide-react-native) |
+| `badge`    | string \| number \| boolean | Badge content                                                 |
+| `disabled` | boolean                     | Whether the tab is disabled                                   |
+| `onPress`  | function                    | Callback when tab is pressed                                  |
 
-### Checkout our other libraries
-- Simple cross platform navigation library for React Native (web): [react-native-ridge-navigation](https://github.com/web-ridge/react-native-ridge-navigation)
-- Simple form library for React Native with great UX for developer and end-user: [react-native-use-form]([https://github.com/web-ridge/react-native-ridge-navigation](https://github.com/web-ridge/react-native-use-form))
-- Smooth and fast cross platform Material Design date and time picker for React Native Paper: [react-native-paper-dates](https://github.com/web-ridge/react-native-paper-dates)
-- Smooth and fast cross platform Material Design Tabs for React Native Paper: [react-native-paper-tabs](https://github.com/web-ridge/react-native-paper-tabs)
-- Simple translations in React (Native): [react-ridge-translations](https://github.com/web-ridge/react-ridge-translations)
+### TabsProvider
+
+| Prop            | Type     | Description                     |
+| --------------- | -------- | ------------------------------- |
+| `defaultIndex`  | number   | Initial tab index               |
+| `forcedIndex`   | number   | Externally controlled tab index |
+| `onChangeIndex` | function | Callback when tab changes       |

@@ -9,10 +9,10 @@ export const TabsContext = React.createContext<{
 	index: 0
 });
 
-export function useTabNavigation() {
+export const useTabNavigation = () => {
 	return useContext(TabsContext).goTo;
-}
+};
 
-export function useTabIndex() {
+export const useTabIndex = (): number => {
 	return useContext(TabsContext).index;
-}
+};
