@@ -8,7 +8,8 @@ import { useTabIndex } from './context';
 // ----------------------------------------------------------------------
 
 const Swiper = React.memo(function Swiper(props: SwiperProps) {
-	const { theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle } = props;
+	const { theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle, fontSize } =
+		props;
 
 	const index = useTabIndex();
 	const fadeAnim = React.useRef(new Animated.Value(1)).current;
@@ -61,9 +62,23 @@ const Swiper = React.memo(function Swiper(props: SwiperProps) {
 			uppercase,
 			mode,
 			tabHeaderStyle,
-			tabLabelStyle
+			tabLabelStyle,
+			fontSize // Pass fontSize to TabsHeader
 		}),
-		[children, theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle]
+		[
+			children,
+			theme,
+			dark,
+			style,
+			iconPosition,
+			showTextLabel,
+			showLeadingSpace,
+			uppercase,
+			mode,
+			tabHeaderStyle,
+			tabLabelStyle,
+			fontSize
+		]
 	);
 
 	if (!currentScreen) {

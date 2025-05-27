@@ -23,6 +23,7 @@ export default function TabsHeader({
 	mode,
 	tabHeaderStyle,
 	tabLabelStyle,
+	fontSize,
 	children
 }: SwiperRenderProps) {
 	const { index, goTo } = React.useContext(TabsContext);
@@ -160,6 +161,7 @@ export default function TabsHeader({
 							showTextLabel={showTextLabel}
 							mode={mode}
 							tabLabelStyle={tabLabelStyle}
+							fontSize={fontSize} // Pass fontSize to TabsHeaderItem
 						/>
 					))}
 					<Animated.View

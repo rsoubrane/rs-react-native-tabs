@@ -38,7 +38,7 @@ export function useAnimatedText({
 export function useIndicator({ childrenCount, position, offset, layouts, tabsLayout }: IndicatorArgs): IndicatorReturns {
 	const [renderIndex, setRenderIndex] = React.useState(0);
 
-	const style = React.useMemo<AnimatedViewStyle | null>(() => {
+	const style = React.useMemo<AnimatedViewStyle | null>((): AnimatedViewStyle | null => {
 		const childrenA = new Array(childrenCount).fill(undefined);
 		const inputRange = childrenA.map((__, i) => i);
 		const positionWithOffset = Animated.add(position!, offset!);

@@ -49,7 +49,8 @@ const TabsHeaderItem = React.memo(
 		mode,
 		iconPosition,
 		showTextLabel,
-		tabLabelStyle
+		tabLabelStyle,
+		fontSize
 	}: {
 		tab: ReactElement<TabScreenProps>;
 		tabIndex: number;
@@ -67,6 +68,7 @@ const TabsHeaderItem = React.memo(
 		showTextLabel?: boolean;
 		mode: Mode;
 		tabLabelStyle?: TextStyle | undefined;
+		fontSize?: number;
 	}) {
 		const scaleAnim = React.useRef(new Animated.Value(1)).current;
 		const pressOpacity = React.useRef(new Animated.Value(1)).current;
@@ -150,6 +152,7 @@ const TabsHeaderItem = React.memo(
 		);
 
 		const dynamicFontSize = React.useMemo(() => {
+			if (fontSize) return fontSize; // Use provided fontSize if available
 			const screenWidth = Dimensions.get('window').width;
 			const tabWidth = mode === 'fixed' ? screenWidth / childrenCount : Math.min(screenWidth / 3, 120);
 			const iconSpace = tab.props.icon ? 32 : 0;
@@ -157,29 +160,29 @@ const TabsHeaderItem = React.memo(
 			const badgeSpace = badgeConfig.isFilled ? 16 : 0;
 			const availableTextWidth = tabWidth - iconSpace - paddingSpace - badgeSpace;
 
-			let fontSize = 12;
+			let fontSizeValue = 11; // Reduced from 12
 
 			if (availableTextWidth > 80 && textContent.length <= 6) {
-				fontSize = 14;
+				fontSizeValue = 13; // Reduced from 14
 			} else if (availableTextWidth > 100 && textContent.length <= 4) {
-				fontSize = 16;
+				fontSizeValue = 15; // Reduced from 16
 			}
 
 			const textLength = textContent.length;
 			if (textLength > 12) {
-				fontSize = Math.max(8, fontSize - 4);
+				fontSizeValue = Math.max(7, fontSizeValue - 3); // Adjusted from Math.max(8, fontSize - 4)
 			} else if (textLength > 8) {
-				fontSize = Math.max(10, fontSize - 2);
+				fontSizeValue = Math.max(9, fontSizeValue - 2); // Adjusted from Math.max(10, fontSize - 2)
 			}
 
 			if (availableTextWidth < 40) {
-				fontSize = Math.max(8, fontSize - 2);
+				fontSizeValue = Math.max(7, fontSizeValue - 2); // Adjusted from Math.max(8, fontSize - 2)
 			} else if (availableTextWidth < 60) {
-				fontSize = Math.max(9, fontSize - 1);
+				fontSizeValue = Math.max(8, fontSizeValue - 1); // Adjusted from Math.max(9, fontSize - 1)
 			}
 
-			return fontSize;
-		}, [textContent.length, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
+			return fontSizeValue;
+		}, [fontSize, textContent.length, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
 
 		const maxCharacters = React.useMemo(() => {
 			const screenWidth = Dimensions.get('window').width;
@@ -299,7 +302,8 @@ const TabsHeaderItem = React.memo(
 			prevProps.uppercase === nextProps.uppercase &&
 			prevProps.iconPosition === nextProps.iconPosition &&
 			prevProps.showTextLabel === nextProps.showTextLabel &&
-			prevProps.mode === nextProps.mode
+			prevProps.mode === nextProps.mode &&
+			prevProps.fontSize === nextProps.fontSize // Added fontSize to comparison
 		);
 	}
 );

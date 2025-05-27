@@ -39,7 +39,12 @@ export function useIndicator({ index, layouts }: IndicatorArgs): IndicatorReturn
 	return [indicatorRef, updateIndicator, indicatorStyle];
 }
 
-export function useOffsetScroller(_: OffsetScrollArgs) {}
+export function useOffsetScroller(_: OffsetScrollArgs) {
+	// This function is a placeholder for future implementation.
+	// Currently, it does not perform any actions.
+	// You can implement the logic for scrolling to a specific index here.
+	return;
+}
 export function useAnimatedText({ activeColor, active, textColor }: AnimatedColorArgs): TextStyle {
 	return React.useMemo(
 		() => ({

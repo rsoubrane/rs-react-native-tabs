@@ -1,68 +1,65 @@
 {
-	"name": "rs-react-native-paper-tabs",
-	"version": "1.0.0",
-	"description": "Smooth and fast cross platform Material Design Tabs for React Native Paper",
-	"source": "./src/index.tsx",
-	"main": "./lib/commonjs/index.js",
-	"module": "./lib/module/index.js",
-	"types": "./lib/typescript/module/src/index.d.ts",
-	"exports": {
-		".": {
-			"import": {
-				"types": "./lib/typescript/module/src/index.d.ts",
-				"default": "./lib/module/index.js"
-			},
-			"require": {
-				"types": "./lib/typescript/commonjs/src/index.d.ts",
-				"default": "./lib/commonjs/index.js"
-			}
-		}
-	},
-	"files": [
-		"src",
-		"lib"
-	],
-	"scripts": {
-		"build": "tsc",
-		"prepare": "npm run build"
-	},
-	"keywords": [
-		"react-native",
-		"ios",
-		"android"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/rsoubrane/rs-react-native-tabs.git"
-	},
-	"author": "Richard Lindhout <richard.lindhout@webridge.nl> (https://www.webridge.nl)",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/web-ridge/react-native-paper-tabs/issues"
-	},
-	"homepage": "https://github.com/web-ridge/react-native-paper-tabs#readme",
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/"
-	},
-	"dependencies": {
-		"color": "^5.0.0",
-		"lucide-react-native": "^0.511.0"
-	},
-	"devDependencies": {
-		"@expo/vector-icons": "^14.1.0",
-		"@types/color": "^4.2.0",
-		"@types/react": "*",
-		"react": "19.1.0",
-		"react-native": "0.79.2",
-		"react-native-pager-view": "^6.8.0",
-		"react-native-paper": "^5.14.5",
-		"typescript": "*"
-	},
-	"peerDependencies": {
-		"react": "*",
-		"react-native": "*",
-		"react-native-pager-view": "*",
-		"react-native-paper": "*"
-	},
-	"packageManager": "pnpm@10.11.0"
+    "name": "rs-react-native-paper-tabs",
+    "version": "1.0.1",
+    "description": "Smooth and fast cross platform Material Design Tabs for React Native Paper",
+    "license": "MIT",
+    "author": "rsoubrane",
+    "type": "commonjs",
+    "main": "./lib/index.js",
+    "module": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "directories": {
+        "lib": "lib"
+    },
+    "files": [
+        "src",
+        "lib"
+    ],
+    "homepage": "https://github.com/web-ridge/react-native-paper-tabs#readme",
+    "bugs": {
+        "url": "https://github.com/rsoubrane/rs-react-native-tabs/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rsoubrane/rs-react-native-tabs.git"
+    },
+    "keywords": [
+        "react-native",
+        "ios",
+        "android"
+    ],
+    "publishConfig": {
+        "registry": "https://registry.npmjs.org/"
+    },
+    "scripts": {
+        "biome:lint": "biome lint ./src",
+        "biome:format": "biome format ./src --write",
+        "biome:check": "biome check ./src",
+        "biome:check:apply": "biome check ./src --write",
+        "biome:check:apply:unsafe": "biome check ./src --write --unsafe",
+        "build": "tsc --skipLibCheck",
+        "prepublish": "pnpm build",
+        "prepare": "pnpm build"
+    },
+    "dependencies": {
+        "lucide-react-native": "^0.511.0"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "*",
+        "@commitlint/config-conventional": "*",
+        "@expo/vector-icons": "^14.1.0",
+        "@types/react": "*",
+        "react": "19.1.0",
+        "react-native": "0.79.2",
+        "react-native-pager-view": "^6.8.0",
+        "react-native-paper": "^5.14.5",
+        "typescript": "*"
+    },
+    "peerDependencies": {
+        "react": "*",
+        "react-native": "*",
+        "react-native-pager-view": "*",
+        "react-native-paper": "*"
+    },
+    "packageManager": "pnpm@10.11.0"
 }
