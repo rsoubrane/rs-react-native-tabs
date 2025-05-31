@@ -28,7 +28,8 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 		showLeadingSpace,
 		disableSwipe,
 		tabHeaderStyle,
-		tabLabelStyle
+		tabLabelStyle,
+		fontSize
 	} = props;
 
 	const { index, goTo } = React.useContext(TabsContext);
@@ -37,42 +38,40 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 	const indexRef = React.useRef<number>(index || 0);
 	const offset = React.useRef<Animated.Value>(new Animated.Value(0));
 	const position = React.useRef<Animated.Value>(new Animated.Value(index || 0));
-	const isScrolling = React.useRef<boolean>(false);
+	const isProgrammaticScroll = React.useRef<boolean>(false);
 	const viewPager = React.useRef<ViewPager | null>(null);
 
 	React.useEffect(() => {
 		if (index !== indexRef.current && viewPager.current) {
-			isScrolling.current = true;
-
-			requestAnimationFrame(() => {
-				viewPager.current?.setPage(index);
-			});
+			isProgrammaticScroll.current = true;
+			viewPager.current.setPage(index);
 		}
-
 		indexRef.current = index;
 	}, [index]);
 
 	const onPageScrollStateChanged = React.useCallback((e: any) => {
 		const state = e.nativeEvent.pageScrollState;
-		isScrolling.current = state !== 'idle';
 
-		if (state === 'idle' && Platform.OS === 'ios') {
-			const { HapticFeedback } = require('react-native');
-			HapticFeedback?.selection?.();
+		// Reset programmatic scroll flag when scrolling ends
+		if (state === 'idle') {
+			isProgrammaticScroll.current = false;
+
+			if (Platform.OS === 'ios') {
+				const { HapticFeedback } = require('react-native');
+				HapticFeedback?.selection?.();
+			}
 		}
 	}, []);
 
 	const onPageSelected = React.useCallback(
 		(e: any) => {
-			if (isScrolling.current) return;
+			const newIndexFromEvent = e.nativeEvent.position;
 
-			const newIndex = e.nativeEvent.position;
-			if (newIndex !== index) {
-				requestAnimationFrame(() => {
-					goTo(newIndex);
-				});
+			// Only call goTo if this was a user-initiated swipe (not programmatic)
+			// and the new index is different from the current context index
+			if (!isProgrammaticScroll.current && newIndexFromEvent !== index) {
+				goTo(newIndexFromEvent);
 			}
-			isScrolling.current = false;
 		},
 		[goTo, index]
 	);
@@ -91,9 +90,23 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 			uppercase,
 			mode,
 			tabHeaderStyle,
-			tabLabelStyle
+			tabLabelStyle,
+			fontSize
 		}),
-		[children, theme, dark, style, iconPosition, showTextLabel, showLeadingSpace, uppercase, mode, tabHeaderStyle, tabLabelStyle]
+		[
+			children,
+			theme,
+			dark,
+			style,
+			iconPosition,
+			showTextLabel,
+			showLeadingSpace,
+			uppercase,
+			mode,
+			tabHeaderStyle,
+			tabLabelStyle,
+			fontSize
+		]
 	);
 
 	// Optimized page scroll event

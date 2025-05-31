@@ -16,10 +16,8 @@ export const TabsProvider = React.memo(function TabsProvider({ children, onChang
 	const goTo = useCallback(
 		(ind: number) => {
 			if (ind !== index) {
-				requestAnimationFrame(() => {
-					setIndex(ind);
-					onChangeIndex?.(ind);
-				});
+				setIndex(ind);
+				onChangeIndex?.(ind);
 			}
 		},
 		[index, onChangeIndex]
