@@ -18,6 +18,7 @@ const Tabs = React.memo(function Tabs({
 	tabHeaderStyle,
 	tabLabelStyle,
 	fontSize,
+	iconSize,
 	children: childrenProp
 }: {
 	children: any;
@@ -33,6 +34,7 @@ const Tabs = React.memo(function Tabs({
 	tabHeaderStyle?: ViewStyle | undefined;
 	tabLabelStyle?: TextStyle | undefined;
 	fontSize?: number;
+	iconSize?: number;
 }) {
 	const children = React.useMemo(() => React.Children.toArray(childrenProp).filter(Boolean), [childrenProp]);
 
@@ -49,7 +51,8 @@ const Tabs = React.memo(function Tabs({
 			disableSwipe,
 			tabHeaderStyle,
 			tabLabelStyle,
-			fontSize
+			fontSize,
+			iconSize
 		}),
 		[
 			style,
@@ -63,7 +66,8 @@ const Tabs = React.memo(function Tabs({
 			disableSwipe,
 			tabHeaderStyle,
 			tabLabelStyle,
-			fontSize
+			fontSize,
+			iconSize
 		]
 	);
 

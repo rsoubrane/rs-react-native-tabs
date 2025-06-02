@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { ReactElement } from 'react';
 import type { LayoutChangeEvent, TextProps, TextStyle } from 'react-native';
-import { Animated, StyleSheet, View, Platform, Text, Pressable, Dimensions } from 'react-native';
+import { Animated, StyleSheet, View, Platform, Text, Pressable } from 'react-native';
 import type { TabScreenProps } from './TabScreen';
 import type { IconPosition, Mode, TabsTheme } from './utils';
 import { useAnimatedText } from './internal';
@@ -50,7 +50,8 @@ const TabsHeaderItem = React.memo(
 		iconPosition,
 		showTextLabel,
 		tabLabelStyle,
-		fontSize
+		fontSize,
+		iconSize
 	}: {
 		tab: ReactElement<TabScreenProps>;
 		tabIndex: number;
@@ -69,6 +70,7 @@ const TabsHeaderItem = React.memo(
 		mode: Mode;
 		tabLabelStyle?: TextStyle | undefined;
 		fontSize?: number;
+		iconSize?: number;
 	}) {
 		const scaleAnim = React.useRef(new Animated.Value(1)).current;
 		const pressOpacity = React.useRef(new Animated.Value(1)).current;
@@ -151,64 +153,40 @@ const TabsHeaderItem = React.memo(
 			[uppercase, tab.props.label]
 		);
 
-		const dynamicFontSize = React.useMemo(() => {
-			if (fontSize) return fontSize; // Use provided fontSize if available
-			const screenWidth = Dimensions.get('window').width;
-			const tabWidth = mode === 'fixed' ? screenWidth / childrenCount : Math.min(screenWidth / 3, 120);
-			const iconSpace = tab.props.icon ? 32 : 0;
-			const paddingSpace = 32;
-			const badgeSpace = badgeConfig.isFilled ? 16 : 0;
-			const availableTextWidth = tabWidth - iconSpace - paddingSpace - badgeSpace;
+		const finalFontSize = React.useMemo(() => {
+			// Use provided fontSize prop first, then tabLabelStyle fontSize, or fall back to 13
+			return fontSize || tabLabelStyle?.fontSize || 13;
+		}, [fontSize, tabLabelStyle?.fontSize]);
 
-			let fontSizeValue = 11; // Reduced from 12
+		const [adaptiveFontSize, setAdaptiveFontSize] = React.useState(finalFontSize);
+		const textRef = React.useRef<Text>(null);
 
-			if (availableTextWidth > 80 && textContent.length <= 6) {
-				fontSizeValue = 13; // Reduced from 14
-			} else if (availableTextWidth > 100 && textContent.length <= 4) {
-				fontSizeValue = 15; // Reduced from 16
-			}
+		const handleTextLayout = React.useCallback(
+			(event: any) => {
+				const { width: textWidth } = event.nativeEvent.layout;
+				const containerWidth = mode === 'fixed' ? 120 : 150; // Estimate based on tab width
+				const iconWidth = tab.props.icon ? (iconSize || 24) + 8 : 0; // Icon + margin
+				const availableWidth = containerWidth - iconWidth - 32; // Padding
 
-			const textLength = textContent.length;
-			if (textLength > 12) {
-				fontSizeValue = Math.max(7, fontSizeValue - 3); // Adjusted from Math.max(8, fontSize - 4)
-			} else if (textLength > 8) {
-				fontSizeValue = Math.max(9, fontSizeValue - 2); // Adjusted from Math.max(10, fontSize - 2)
-			}
+				if (textWidth > availableWidth && adaptiveFontSize > 10) {
+					const ratio = availableWidth / textWidth;
+					const newFontSize = Math.max(10, Math.floor(finalFontSize * ratio));
+					if (newFontSize !== adaptiveFontSize) {
+						setAdaptiveFontSize(newFontSize);
+					}
+				}
+			},
+			[mode, tab.props.icon, adaptiveFontSize, finalFontSize, iconSize]
+		);
 
-			if (availableTextWidth < 40) {
-				fontSizeValue = Math.max(7, fontSizeValue - 2); // Adjusted from Math.max(8, fontSize - 2)
-			} else if (availableTextWidth < 60) {
-				fontSizeValue = Math.max(8, fontSizeValue - 1); // Adjusted from Math.max(9, fontSize - 1)
-			}
-
-			return fontSizeValue;
-		}, [fontSize, textContent.length, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
-
-		const maxCharacters = React.useMemo(() => {
-			const screenWidth = Dimensions.get('window').width;
-			const tabWidth = mode === 'fixed' ? screenWidth / childrenCount : Math.min(screenWidth / 3, 120);
-			const iconSpace = tab.props.icon ? 32 : 0;
-			const paddingSpace = 32;
-			const badgeSpace = badgeConfig.isFilled ? 16 : 0;
-			const availableTextWidth = tabWidth - iconSpace - paddingSpace - badgeSpace;
-
-			const characterWidth = dynamicFontSize * (Platform.OS === 'ios' ? 0.55 : 0.6);
-			const maxChars = Math.floor(availableTextWidth / characterWidth);
-
-			return Math.max(3, maxChars);
-		}, [dynamicFontSize, mode, childrenCount, tab.props.icon, badgeConfig.isFilled]);
+		React.useEffect(() => {
+			setAdaptiveFontSize(finalFontSize);
+		}, [finalFontSize]);
 
 		const displayText = React.useMemo(() => {
-			if (textContent.length <= maxCharacters) {
-				return textContent;
-			}
-
-			if (maxCharacters <= 4) {
-				return `${textContent.substring(0, 1)}...`;
-			}
-
-			return `${textContent.substring(0, maxCharacters - 3)}...`;
-		}, [textContent, maxCharacters]);
+			// Don't truncate text - let flexbox handle it
+			return textContent;
+		}, [textContent]);
 
 		const containerStyle = React.useMemo(() => [styles.tabRoot, mode === 'fixed' && styles.tabRootFixed], [mode]);
 
@@ -248,7 +226,7 @@ const TabsHeaderItem = React.memo(
 						{tab.props.icon && (
 							<Animated.View style={[styles.iconContainer, iconPosition !== 'top' && styles.marginRight, { opacity }]}>
 								{React.createElement(tab.props.icon, {
-									size: 24,
+									size: iconSize || 24,
 									color: Platform.OS === 'android' ? textColor : textColor,
 									accessibilityLabel: tab.props.label
 								})}
@@ -272,13 +250,13 @@ const TabsHeaderItem = React.memo(
 						{showTextLabel && (
 							<View style={styles.textContainer}>
 								<AnimatedText
+									ref={textRef}
 									selectable={false}
-									numberOfLines={1}
-									ellipsizeMode="tail"
+									onLayout={handleTextLayout}
 									style={[
 										styles.text,
 										iconPosition === 'top' && styles.textTop,
-										{ color, opacity, fontSize: dynamicFontSize },
+										{ color, opacity, fontSize: adaptiveFontSize },
 										tabLabelStyle
 									]}>
 									{displayText}
@@ -302,8 +280,7 @@ const TabsHeaderItem = React.memo(
 			prevProps.uppercase === nextProps.uppercase &&
 			prevProps.iconPosition === nextProps.iconPosition &&
 			prevProps.showTextLabel === nextProps.showTextLabel &&
-			prevProps.mode === nextProps.mode &&
-			prevProps.fontSize === nextProps.fontSize // Added fontSize to comparison
+			prevProps.mode === nextProps.mode
 		);
 	}
 );
@@ -311,20 +288,28 @@ const TabsHeaderItem = React.memo(
 const styles = StyleSheet.create({
 	badgeContainer: {
 		position: 'absolute',
-		left: 0,
-		top: -2
+		right: -8,
+		top: -4,
+		zIndex: 10
 	},
 	badge: {
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.2,
+		shadowRadius: 2,
+		elevation: 3
 	},
 	badgeText: {
 		color: '#fff',
-		fontWeight: 'bold',
-		textAlign: 'center'
+		fontWeight: '700',
+		textAlign: 'center',
+		fontSize: 10
 	},
 	tabRoot: {
-		position: 'relative'
+		position: 'relative',
+		marginHorizontal: 3
 	},
 	tabRootFixed: {
 		flex: 1
@@ -333,11 +318,15 @@ const styles = StyleSheet.create({
 		height: 48,
 		justifyContent: 'center',
 		alignItems: 'center',
-		overflow: 'hidden',
-		borderRadius: 8
+		borderRadius: 24,
+		flex: 1,
+		marginHorizontal: 6,
+		backgroundColor: 'transparent',
+		overflow: 'hidden'
 	},
 	touchableRippleTop: {
-		height: 72
+		height: 70,
+		borderRadius: 35
 	},
 	touchableRippleInner: {
 		height: '100%',
@@ -345,51 +334,61 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		paddingHorizontal: 16,
-		minWidth: 90,
-		maxWidth: 360
+		paddingVertical: 0,
+		flex: 1,
+		borderRadius: 24,
+		backgroundColor: 'transparent'
 	},
 	touchableRippleInnerTop: {
 		flexDirection: 'column',
 		alignItems: 'center',
-		justifyContent: 'center'
+		justifyContent: 'center',
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		borderRadius: 35
 	},
 	touchableRippleDisabled: {
-		opacity: 0.4
+		opacity: 0.3
 	},
 	iconContainer: {
 		width: 24,
 		height: 24,
 		justifyContent: 'center',
-		alignItems: 'center'
+		alignItems: 'center',
+		flexShrink: 0
 	},
 	text: {
 		textAlign: 'center',
 		letterSpacing: 0.5,
 		includeFontPadding: false,
 		textAlignVertical: 'center',
-		fontWeight: '500',
+		fontWeight: '600',
+		flexShrink: 1,
 		...Platform.select({
 			web: {
-				transitionDuration: '150ms',
-				transitionProperty: 'all',
-				whiteSpace: 'nowrap',
-				overflow: 'hidden',
-				textOverflow: 'ellipsis'
+				userSelect: 'none',
+				fontFamily: 'system-ui, -apple-system, sans-serif'
 			},
 			android: {
 				includeFontPadding: false,
-				textAlignVertical: 'center'
+				textAlignVertical: 'center',
+				fontFamily: 'Roboto'
+			},
+			ios: {
+				fontFamily: 'SF Pro Display'
 			},
 			default: {}
 		})
 	},
 	textTop: {
-		marginTop: 6
+		marginTop: 8,
+		fontSize: 12
 	},
 	textContainer: {
 		justifyContent: 'center',
 		alignItems: 'center',
-		flex: 1
+		flex: 1,
+		minHeight: 24
 	},
 	marginRight: {
 		marginRight: 8

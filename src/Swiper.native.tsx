@@ -29,7 +29,8 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 		disableSwipe,
 		tabHeaderStyle,
 		tabLabelStyle,
-		fontSize
+		fontSize,
+		iconSize
 	} = props;
 
 	const { index, goTo } = React.useContext(TabsContext);
@@ -91,7 +92,8 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 			mode,
 			tabHeaderStyle,
 			tabLabelStyle,
-			fontSize
+			fontSize,
+			iconSize
 		}),
 		[
 			children,
@@ -105,7 +107,8 @@ const SwiperNative = React.memo(function SwiperNative(props: SwiperProps) {
 			mode,
 			tabHeaderStyle,
 			tabLabelStyle,
-			fontSize
+			fontSize,
+			iconSize
 		]
 	);
 

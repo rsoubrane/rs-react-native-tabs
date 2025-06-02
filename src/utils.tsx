@@ -41,6 +41,7 @@ export interface SwiperRenderProps {
 	tabHeaderStyle: ViewStyle | undefined;
 	tabLabelStyle: TextStyle | undefined;
 	fontSize?: number;
+	iconSize?: number;
 }
 
 export interface SwiperProps {
@@ -57,6 +58,7 @@ export interface SwiperProps {
 	tabHeaderStyle: ViewStyle | undefined;
 	tabLabelStyle: TextStyle | undefined;
 	fontSize?: number;
+	iconSize?: number;
 }
 
 export interface OffsetScrollArgs {

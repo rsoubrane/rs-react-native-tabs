@@ -39,6 +39,8 @@ export default function MyScreen() {
           fontSize: 14,
           fontWeight: '500',
         }}
+        fontSize={14}
+        iconSize={20}
       >
         <TabScreen label="Home" icon={Home}>
           <HomeScreen />
@@ -73,6 +75,8 @@ export default function MyScreen() {
 | `uppercase`      | boolean                 | Whether to uppercase labels           |
 | `tabHeaderStyle` | ViewStyle               | Style for the tab header              |
 | `tabLabelStyle`  | TextStyle               | Style for the tab labels              |
+| `fontSize`       | number                  | Font size for tab labels              |
+| `iconSize`       | number                  | Size for tab icons                    |
 
 ### TabScreen
 
