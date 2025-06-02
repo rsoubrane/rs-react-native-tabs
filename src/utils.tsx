@@ -22,7 +22,6 @@ export interface TabsTheme {
 	};
 	roundness?: number;
 	dark?: boolean;
-	isV3?: boolean;
 	mode?: string;
 }
 
